@@ -15,7 +15,7 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filtered, setFiltered] = useState<FilterTodo>('All');
+  const [filtered, setFiltered] = useState<FilterTodo>(FilterTodo.All);
   const [deletedIds, setDeletedIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [updatingIds, setUpdatingIds] = useState<Todo[]>([]);
@@ -36,10 +36,10 @@ export const App: React.FC = () => {
     let filteredTodos = todos;
 
     switch (filtered) {
-      case 'Active':
+      case FilterTodo.Active:
         filteredTodos = filteredTodos.filter(td => !td.completed);
         break;
-      case 'Completed':
+      case FilterTodo.Completed:
         filteredTodos = filteredTodos.filter(td => td.completed);
         break;
       default:
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
     setFiltered(el);
   };
 
-  async function addTodo(title: string) {
+  const addTodo = async (title: string) => {
     setAdding(true);
     setErrorMsg('');
     setTempTodo({ id: 0, title, completed: false, userId: api.USER_ID });
@@ -81,9 +81,9 @@ export const App: React.FC = () => {
       setAdding(false);
       setTempTodo(null);
     }
-  }
+  };
 
-  async function updateTodo(todosToUpdate: Todo[]) {
+  const updateTodo = async (todosToUpdate: Todo[]) => {
     setUpdatingIds(todosToUpdate);
 
     for (const todoToUpdate of todosToUpdate) {
@@ -102,9 +102,9 @@ export const App: React.FC = () => {
         setUpdatingIds([]);
       }
     }
-  }
+  };
 
-  async function deleteTodo(todosId: number[]) {
+  const deleteTodo = async (todosId: number[]) => {
     setDeletedIds(todosId);
 
     for (const todoId of todosId) {
@@ -121,7 +121,7 @@ export const App: React.FC = () => {
         setDeletedIds([]);
       }
     }
-  }
+  };
 
   if (!api.USER_ID) {
     return <UserWarning />;

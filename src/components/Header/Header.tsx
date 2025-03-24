@@ -40,23 +40,19 @@ export const Header: React.FC<Props> = ({
   }, []);
 
   const completedTds = todos.filter(el => el.completed);
-  const uncompletedTds = todos.filter(el => !el.completed);
 
   const changeAllCompleted = () => {
-    if (completedTds.length !== todos.length) {
-      const makeCompleted = uncompletedTds.map(td => ({
+    const areAllCompleted = todos.every(td => td.completed);
+
+    const updatedTodos = todos
+      .filter(td => td.completed === areAllCompleted)
+      .map(td => ({
         ...td,
-        completed: true,
+        completed: !areAllCompleted,
       }));
 
-      onUpdate(makeCompleted);
-    } else if (uncompletedTds.length !== todos.length) {
-      const makeUnCompleted = completedTds.map(td => ({
-        ...td,
-        completed: false,
-      }));
-
-      onUpdate(makeUnCompleted);
+    if (updatedTodos.length > 0) {
+      onUpdate(updatedTodos);
     }
   };
 

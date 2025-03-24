@@ -39,7 +39,7 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        {['All', 'Active', 'Completed'].map(title => (
+        {Object.values(FilterTodo).map(title => (
           <a
             key={title}
             href="#/"
