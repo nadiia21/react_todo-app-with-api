@@ -41,12 +41,16 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (!titleTodo.length) {
+    if (titleTodo.length === 0) {
+      setEditing(true);
       onDelete([id])
         .then(() => {
           setEditing(false);
         })
         .catch(() => {
+          setEditing(true);
+        })
+        .finally(() => {
           setEditing(true);
         });
 
@@ -118,7 +122,7 @@ export const TodoItem: React.FC<Props> = ({
     if (inputRef) {
       inputRef.current?.focus();
     }
-  }, [editing]);
+  }, [editing, titleTodo.length]);
 
   return (
     <div

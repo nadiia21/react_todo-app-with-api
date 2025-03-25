@@ -129,7 +129,7 @@ describe('', () => {
     if (failed) Cypress.runner.stop();
   });
 
-  describe.skip('Page with no todos', () => {
+  describe('Page with no todos', () => {
     it('should send 1 todos request', () => {
       const spy = cy
         .stub()
@@ -283,7 +283,7 @@ describe('', () => {
     });
   });
 
-  describe.skip('Filtering', () => {
+  describe('Filtering', () => {
     describe('with mixed todos', () => {
       beforeEach(() => {
         page.mockLoad().as('loadRequest');

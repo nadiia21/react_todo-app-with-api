@@ -54,18 +54,26 @@ export const App: React.FC = () => {
   };
 
   const addTodo = async (title: string) => {
+    if (title.trim().length === 0) {
+      setErrorMsg('Title should not be empty');
+      setAdding(false);
+      setTempTodo(null);
+
+      return;
+    }
+
+    const tempTodoItem = {
+      id: 0,
+      title,
+      completed: false,
+      userId: api.USER_ID,
+    };
+
+    setTempTodo(tempTodoItem);
     setAdding(true);
     setErrorMsg('');
-    setTempTodo({ id: 0, title, completed: false, userId: api.USER_ID });
 
     try {
-      if (title.trim().length === 0) {
-        setErrorMsg('Title should not be empty');
-        setAdding(false);
-
-        return;
-      }
-
       const newTodo = await api.addTodo({
         title,
         completed: false,
@@ -75,6 +83,7 @@ export const App: React.FC = () => {
       setTodos(prevTodos => {
         return [...prevTodos, newTodo];
       });
+      setTempTodo(null);
     } catch {
       setErrorMsg('Unable to add a todo');
     } finally {
@@ -86,40 +95,50 @@ export const App: React.FC = () => {
   const updateTodo = async (todosToUpdate: Todo[]) => {
     setUpdatingIds(todosToUpdate);
 
-    for (const todoToUpdate of todosToUpdate) {
-      try {
-        const updatedTodo = await api.updateTodo(todoToUpdate);
+    try {
+      const updatedTodos = await Promise.all(
+        todosToUpdate.map(todo => api.updateTodo(todo)),
+      );
 
-        setTodos(prevTodos =>
-          prevTodos.map(todo =>
-            todo.id === updatedTodo.id ? updatedTodo : todo,
-          ),
-        );
-      } catch (e) {
-        setErrorMsg('Unable to update a todo');
-        throw e;
-      } finally {
-        setUpdatingIds([]);
-      }
+      setTodos(prevTodos =>
+        prevTodos.map(
+          todo => updatedTodos.find(upd => upd.id === todo.id) || todo,
+        ),
+      );
+    } catch (e) {
+      setErrorMsg('Unable to update a todo');
+      throw e;
+    } finally {
+      setUpdatingIds([]);
     }
   };
 
   const deleteTodo = async (todosId: number[]) => {
     setDeletedIds(todosId);
+    const deleteId: number[] = [];
 
-    for (const todoId of todosId) {
-      try {
-        await api.deleteTodo(todoId);
+    try {
+      await Promise.all(
+        todosId.map(id =>
+          api
+            .deleteTodo(id)
+            .then(() => {
+              deleteId.push(id);
+            })
+            .catch(() => {
+              setErrorMsg('Unable to delete a todo');
+            }),
+        ),
+      );
 
-        setTodos(prevTodos => {
-          return prevTodos.filter(todo => todo.id !== todoId);
-        });
-      } catch (e) {
-        setErrorMsg('Unable to delete a todo');
-        throw e;
-      } finally {
-        setDeletedIds([]);
-      }
+      setTodos(prevTodos => {
+        return prevTodos.filter(todo => !deleteId.includes(todo.id));
+      });
+    } catch (e) {
+      setErrorMsg('Unable to delete a todo');
+      throw e;
+    } finally {
+      setDeletedIds([]);
     }
   };
 
